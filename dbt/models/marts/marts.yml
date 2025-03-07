@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: dim_product
+    description: "Product dimension table"
+    columns:
+      - name: product_id
+        description: "The primary key for products"
+        tests:
+          - unique
+          - not_null
+      
+      - name: product_name
+        description: "Name of the product"
+        tests:
+          - not_null
+      
+      - name: category
+        description: "Product category"
+        tests:
+          - not_null
+  
+  - name: dim_retailer
+    description: "Retailer dimension table"
+    columns:
+      - name: retailer_id
+        description: "The primary key for retailers"
+        tests:
+          - unique
+          - not_null
+      
+      - name: retailer_name
+        description: "Name of the retailer"
+        tests:
+          - not_null
+      
+      - name: channel
+        description: "Sales channel (Online/Offline)"
+        tests:
+          - not_null
+      
+      - name: business_model
+        description: "Business model categorization"
+        tests:
+          - not_null
+      
+      - name: region
+        description: "Geographic region"
+        tests:
+          - not_null
+  
+  - name: fact_sales
+    description: "Sales fact table"
+    columns:
+      - name: sale_id
+        description: "The primary key for sales"
+        tests:
+          - unique
+          - not_null
+      
+      - name: product_id
+        description: "Foreign key to products"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product_id
+      
+      - name: retailer_id
+        description: "Foreign key to retailers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_retailer')
+              field: retailer_id
+      
+      - name: sale_amount
+        description: "Total sale amount"
+        tests:
+          - not_null
+          - positive_values
+      
+      - name: sale_date
+        description: "Date of the sale"
+        tests:
+          - not_null 

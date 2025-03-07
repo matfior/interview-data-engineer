@@ -1,5 +1,140 @@
 # Senior Data Engineer Take-Home Assignment
 
+## Overview
+
+This project implements a complete data pipeline for processing sales data. The pipeline includes:
+
+1. Data ingestion and cleaning
+2. Database integration with PostgreSQL
+3. Airflow orchestration
+4. dbt transformations
+5. Data quality tests
+
+## Architecture
+
+The solution is fully containerized using Docker and includes the following components:
+
+- **PostgreSQL**: Database for storing raw and transformed data
+- **Airflow**: Workflow orchestration tool
+- **dbt**: Data transformation tool
+- **Python**: Data processing scripts
+
+## Directory Structure
+
+```
+.
+├── airflow/
+│   ├── dags/
+│   │   └── sales_data_pipeline.py
+│   ├── logs/
+│   └── plugins/
+├── data/
+│   └── generated_sales_data.csv
+├── dbt/
+│   ├── models/
+│   │   ├── marts/
+│   │   │   ├── dim_product.sql
+│   │   │   ├── fact_sales.sql
+│   │   │   └── marts.yml
+│   │   └── staging/
+│   │       ├── stg_sales.sql
+│   │       └── stg_sales.yml
+│   ├── macros/
+│   │   └── positive_values.sql
+│   ├── profiles/
+│   │   └── profiles.yml
+│   └── dbt_project.yml
+├── initdb/
+│   └── init_sales_db.sql
+├── scripts/
+│   └── ingest_sales_data.py
+├── docker-compose.yml
+├── Dockerfile
+└── requirements.txt
+```
+
+## Setup Instructions
+
+### Prerequisites
+
+- Docker and Docker Compose
+
+### Running the Solution
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
+
+2. Start the Docker containers:
+   ```bash
+   docker-compose up -d
+   ```
+
+3. Access the services:
+   - Airflow: http://localhost:8080 (username: admin, password: admin)
+   - PostgreSQL: localhost:5432 (username: postgres, password: mysecretpassword)
+
+## Pipeline Details
+
+### 1. Data Ingestion
+
+The data ingestion process:
+- Reads the CSV file
+- Handles missing values and duplicates
+- Validates data types
+- Loads the data into PostgreSQL
+
+### 2. Database Integration
+
+The database schema includes:
+- Raw sales table with appropriate indexes
+- Staging views created by dbt
+- Dimensional models (fact and dimension tables)
+
+### 3. Airflow Orchestration
+
+The Airflow DAG orchestrates the following tasks:
+- Data ingestion
+- Index creation
+- dbt transformations
+- Data quality tests
+
+### 4. dbt Implementation
+
+The dbt project includes:
+- Staging models that clean and prepare the data
+- Dimensional models (fact_sales and dim_product)
+- Data quality tests
+
+## Data Quality
+
+Data quality is ensured through:
+- Data cleaning in the ingestion script
+- dbt tests for uniqueness, not-null values, and relationships
+- Custom tests for positive values
+
+## Future Improvements
+
+Potential improvements to the solution:
+- Implement incremental loading for larger datasets
+- Add more comprehensive data quality checks
+- Create a dashboard for monitoring data quality
+- Implement CI/CD for the data pipeline
+
+## Troubleshooting
+
+If you encounter any issues:
+1. Check the Docker container logs:
+   ```bash
+   docker-compose logs -f
+   ```
+2. Verify that all services are running:
+   ```bash
+   docker-compose ps
+   ```
+3. Check the Airflow logs for specific task failures
 
 👋 Welcome to the Hostaway Data Engineer Technical Test
 

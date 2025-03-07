@@ -5,7 +5,66 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=postgres
     volumes:
       - ./initdb:/docker-entrypoint-initdb.d
+      - postgres-db-volume:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
+
+  airflow:
+    image: apache/airflow:2.7.1
+    depends_on:
+      - postgres
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:mysecretpassword@postgres/airflow
+      - AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./dbt:/dbt
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "pip install --no-cache-dir dbt-postgres==1.5.0 &&
+               airflow db init &&
+               airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin &&
+               airflow webserver & airflow scheduler"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  data-processor:
+    image: python:3.10-slim
+    depends_on:
+      - postgres
+    volumes:
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./requirements.txt:/app/requirements.txt
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=sales
+    working_dir: /app
+    command: >
+      bash -c "pip install -r requirements.txt &&
+               python /scripts/ingest_sales_data.py"
+
+volumes:
+  postgres-db-volume:
