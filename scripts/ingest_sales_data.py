@@ -96,6 +96,16 @@ def read_and_clean_data(file_path, target_date=None):
             median_price = df[col].median()
             df[col] = df[col].fillna(median_price)
     
+    # Handle ProductID - convert to numeric and replace invalid values with a default
+    df['ProductID'] = pd.to_numeric(df['ProductID'], errors='coerce')
+    # Replace NaN values with a default product ID (e.g., 999)
+    df['ProductID'] = df['ProductID'].fillna(999).astype(int)
+    
+    # Handle RetailerID - convert to numeric and replace invalid values with a default
+    df['RetailerID'] = pd.to_numeric(df['RetailerID'], errors='coerce')
+    # Replace NaN values with a default retailer ID (e.g., 999)
+    df['RetailerID'] = df['RetailerID'].fillna(999).astype(int)
+    
     # Add a load timestamp column
     df['LoadTimestamp'] = datetime.now()
     

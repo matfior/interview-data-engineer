@@ -16,6 +16,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator, ShortCircuitOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.utils.dates import days_ago
+from airflow.models.baseoperator import chain
 
 # Import the connection setup function
 import sys
@@ -93,4 +94,8 @@ test_dbt = BashOperator(
 )
 
 # Define task dependencies
-setup_connection >> check_existing_data >> ingest_sales_data >> create_indexes >> run_dbt >> test_dbt 
+# Data ingestion branch - this branch may be short-circuited
+chain(setup_connection, check_existing_data, ingest_sales_data, create_indexes)
+
+# dbt transformation branch - this branch always runs
+chain(setup_connection, run_dbt, test_dbt) 
