@@ -2,18 +2,16 @@
 
 ## Overview
 
-This project implements a complete data pipeline for processing sales data. The pipeline includes:
-
-1. Data ingestion and cleaning
-2. Database integration with PostgreSQL
-3. Airflow orchestration
-4. dbt transformations
-5. Data quality tests
+This project implements a complete data pipeline for processing sales data, including:
+- Data ingestion and cleaning
+- PostgreSQL database integration
+- Airflow orchestration
+- dbt transformations
+- Data quality tests
 
 ## Architecture
 
-The solution is fully containerized using Docker and includes the following components:
-
+The solution is fully containerized using Docker with these components:
 - **PostgreSQL**: Database for storing raw and transformed data
 - **Airflow**: Workflow orchestration tool
 - **dbt**: Data transformation tool
@@ -26,7 +24,7 @@ The solution is fully containerized using Docker and includes the following comp
 ├── airflow/
 │   ├── dags/
 │   │   └── sales_data_pipeline.py
-│   ├── logs/
+|   |   └── postgres_connection.py
 │   └── plugins/
 ├── data/
 │   └── generated_sales_data.csv
